@@ -1,0 +1,187 @@
+; COSC 3410 - Project 4
+; Explain briefly the functionality of the program.
+; @author Jacob Sussman, Samuel Schulz
+; Instructor Dr. Brylow
+; TA-BOT:MAILTO jacob.sussman@marquette.edu, samuel.schulz@marquette.edu
+
+(use tree-manual.uscm)
+
+(val path
+  (letrec 
+    ((path-helper 
+      (lambda (num t)
+        (if (not (tree? t))
+            'error-non-tree
+            (if (tree-null? t)
+                #f
+                (if (= num (tree-datum t))
+                    '()
+                    (if (< num (tree-datum t))
+                        (let ((subpath (path-helper num (tree-left t))))
+                          (if subpath
+                              (cons 'left subpath)
+                              #f))
+                        (let ((subpath (path-helper num (tree-right t))))
+                          (if subpath
+                              (cons 'right subpath)
+                              #f)))))))))
+    path-helper))
+
+; Inorder Traversal
+(val inorder 
+  (lambda (t)
+    (if (tree-null? t)
+        '() ; return empty list for null tree
+        (append 
+          (inorder (tree-left t))     ; traverse left subtree
+          (cons (tree-datum t) (inorder (tree-right t))) ; visit the current node and then traverse right subtree
+        )
+    )
+  )
+)
+
+; Postorder Traversal
+(val postorder
+  (lambda (t)
+    (if (tree-null? t)
+        '() ; return empty list for null tree
+        (append 
+          (postorder (tree-left t))   ; traverse left subtree
+          (append 
+           (postorder (tree-right t))  ; traverse right subtree
+           (cons (tree-datum t) '())   ; visit the current node
+          )
+        )
+    )
+  )
+)
+
+; Exploding and Imploding digits
+(val explode-digits
+  (letrec 
+    ; Helper function to extract digits
+    ((explode-helper
+      (lambda (n acc)
+        (if (= n 0)
+            (if (null? acc)
+                '(0)
+                acc)
+            (explode-helper (/ n 10) (cons (mod n 10) acc))
+        )
+      ))
+    )
+    ; Initial call to helper with empty accumulator
+    (lambda (n)
+      (explode-helper n '())
+    )
+  )
+)
+
+(val implode-digits
+  (lambda (lst)
+    (letrec
+      ((helper
+        (lambda (lst acc)
+          (if (null? lst)
+              acc
+              (helper (cdr lst) (+ (* acc 10) (car lst)))
+          )
+        ))
+      )
+      (helper lst 0)
+    )
+  )
+)
+
+; Dot Product
+(define dot-product (xs ys)
+  (if (or (null? xs) (null? ys))
+      0
+      (+ (* (car xs) (car ys))
+         (dot-product (cdr xs) (cdr ys)))))
+
+; Count occurrences
+(val count
+  (lambda (x lst)
+    (if (null? lst)
+        0
+        (if (equal? x (car lst))
+            (+ 1 (count x (cdr lst)))
+            (count x (cdr lst))
+        )
+    )
+  )
+)
+
+; Count all occurrences of an element, even in nested lists
+(val countall
+  (letrec 
+    ; Helper function
+    ((count-helper
+      (lambda (x lst)
+        (if (null? lst) 0                             ; If the list is empty, return 0
+            (if (atom? (car lst))                     ; If the first element is an atom (i.e., not a list)
+                (if (equal? x (car lst))              ; If the atom is the one we're looking for
+                    (+ 1 (count-helper x (cdr lst)))  ; Count it and move to the rest of the list
+                    (count-helper x (cdr lst))        ; Otherwise, just move to the rest of the list
+                )
+                (+ (count-helper x (car lst))         ; If the first element is a list, recursively count in the sublist
+                   (count-helper x (cdr lst)))        ; and count in the rest of the list
+            )
+        )
+      ))
+    )
+    ; Initial call to helper
+    (lambda (x l)
+      (count-helper x l)
+    )
+  )
+)
+
+(val mirror
+  (letrec 
+    ; Main mirror function
+    ((mirror-main
+      (lambda (lst acc)
+        (if (null? lst)
+            acc
+            (let ((item (car lst)))
+              (if (pair? item)
+                  (mirror-main (cdr lst) (cons (mirror-main item '()) acc))
+                  (mirror-main (cdr lst) (cons item acc))
+              )
+            )
+        )
+      ))
+    )
+    ; Call the main function with initial accumulator as empty list
+    (lambda (lst)
+      (mirror-main lst '())
+    )
+  )
+)
+
+(val flatten
+  (letrec
+    ; Check if x is a list
+    ((is-list
+      (lambda (x)
+        (not (or (number? x) (symbol? x))))
+    )
+    ; Flatten helper function
+    (flatten-helper
+      (lambda (lst acc)
+        (if (null? lst)
+            acc ; if list is empty, return accumulator
+            (if (is-list (car lst)) ; if first element of list is a sublist
+                (flatten-helper (cdr lst) (append (flatten-helper (car lst) '()) acc))
+                (flatten-helper (cdr lst) (cons (car lst) acc)) ; if first element is an atom
+            )
+        )
+      ))
+    )
+    (lambda (lst)
+      (reverse (flatten-helper lst '())) ; reverse to get the correct order
+    )
+  )
+)

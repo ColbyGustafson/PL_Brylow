@@ -1,0 +1,20 @@
+; COSC 3410 - Project 1
+; Program performs arithmetic calculations
+; @author [colby gustafson]
+; Instructor [brylow]
+; TA-BOT:MAILTO [colby.gustafson@marquette.edu]
+
+;Sigma
+(val total 0)
+(define sigma(m n)
+	(begin
+		(set total 0)
+		(while (< m n)
+			(begin
+				(set total (+ m total))
+				(set n (+ n 1))
+			)
+		)
+	total
+	)
+)

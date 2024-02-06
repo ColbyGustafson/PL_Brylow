@@ -1,0 +1,133 @@
+; COSC 3410 - Project 4
+; Main project4 file that contains the functions of each exercise
+; @author [Noah Kaye, Colby Gustafson]
+; Instructor [brylow]
+; TA-BOT:MAILTO [noah.kaye@marquette.edu, colby.gustafson@marquette.edu]
+
+; ~brylow/cosc3410/Projects/uscheme
+
+(use tree-manual.uscm)
+
+; PATH
+(define path (num t)
+  (if 
+      (not (tree? t)) 'erorr
+      (if (tree-null? t) #f
+          (if (= num (tree-datum t)) '()
+              (if (< num (tree-datum t))
+                  (let ((sub (path num (tree-left t))))
+                    (if sub (cons 'left sub) #f))
+                  (let ((sub (path num (tree-right t))))
+                    (if sub (cons 'right sub) #f)))))))
+
+
+; TRAVERSALS
+; INORDER
+(define inorder (t)
+   (if 
+      (not (tree? t)) 'error
+      (if (tree-null? t) '()
+      (append (inorder (tree-left t))
+              (cons (tree-datum t) 
+              (inorder (tree-right t)))))))
+
+; POSTORDER
+(define postorder (t)
+  (if 
+      (not (tree? t)) 'error
+      (if (tree-null? t) '()
+      (append 
+          (append (postorder (tree-left t)) 
+                  (postorder (tree-right t)))
+          (cons (tree-datum t) '())))))
+
+
+; IMPLODE AND EXPLODE
+; EXPLODE
+(define explode (n)
+  (if (= 0 n) '(0)
+    (cons (mod n 10) (explode (/ n 10)))
+  )
+)
+;
+(define explode-digits (list)
+  (reverse (explode list))
+)
+
+; IMPLODE
+(define implode (list p)
+  (if (null? list) '0
+    (+ (* (car list) p) (implode (cdr list) (* p 10)))
+  )
+)
+;
+(define implode-digits (list)
+  (if (null? list) '0
+    (implode (reverse list) 1)
+  )
+)
+
+
+; DOT PRODUCT
+; (if (or (not (pair? first)) (not (pair? second))))
+; if statement to validate that argument is a list
+
+; implementation assumes arguments are lists of same size
+(define dot-product (first second)    
+  (if (or (null? first) (null? second))
+    0
+    (+ (* (car first) (car second)) (dot-product (cdr first) (cdr second)))
+  )
+)
+
+
+; Q5
+; COUNT
+(define count (x xs)
+  (if (null? xs)
+    0
+    (if (= x (car xs))
+      (+ 1 (count x (cdr xs)))
+      (+ 0 (count x (cdr xs)))
+    )
+  )
+)
+
+; COUNTALL
+(define countall (x xs)
+  (if (null? xs)
+    0
+    (if (pair? (car xs))
+      (+ 0 (countall x (car xs)))
+      (if (= x (car xs))
+        (+ 1 (countall x (cdr xs)))
+        (+ 0 (countall x (cdr xs)))
+      )
+    )
+  )
+)
+
+; MIRROR
+(define mirror (xs)
+  (if (null? xs)
+    '()
+    (if (pair? (car xs))
+      (append (mirror (cdr xs)) (cons (mirror (car xs)) '()))
+      (append (mirror (cdr xs)) (cons (car xs) '()))
+    )
+  )
+)
+
+; FLATTEN
+(define flatten (xs)
+  (if (null? xs)
+    '()
+    (if (pair? (car xs))
+      (append (flatten (car xs)) (flatten (cdr xs)))
+      (if (null? (car xs))
+        (flatten (cdr xs))
+        (cons (car xs) (flatten (cdr xs)))
+      )
+    )
+  )
+)

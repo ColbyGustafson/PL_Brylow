@@ -1,0 +1,75 @@
+; COSC 3410
+; Fall 2023
+; Dennis Brylow
+;
+; Binary Tree using our own representation.
+
+(val TREECONST 'tree)
+
+; Predicate
+(define tree? (t)
+ (if (not (null? t))
+  (= (car t) TREECONST)
+  #f))
+
+(define tree-null? (t)
+ (if (tree? t)
+     (null? (cdr t))
+     #f)
+ )
+ 
+; Constructors
+(define tree-make
+ (datum left right)
+  (if (and (number? datum)
+       (and (tree? left)
+	(tree? right)))
+   (cons TREECONST (cons datum (cons left (cons right '()))))
+   #f)
+)
+
+(define tree-make-null () (cons TREECONST '()))
+
+; Accessors
+
+(define tree-datum (t)
+ (if (not (tree? t)) 'error-non-tree
+  (if (tree-null? t) 'error-null-tree
+   (cadr t))))
+
+(define tree-left (t)
+ (if (not (tree? t)) 'error-non-tree
+  (if (tree-null? t) 'error-null-tree
+   (caddr t))))
+
+(define tree-right (t)
+ (if (not (tree? t)) 'error-non-tree
+  (if (tree-null? t) 'error-null-tree
+   (cadddr t))))
+
+
+; Useful functions
+
+(define tree-add (num t)
+ (if
+  (not (tree? t)) 'error
+  (if (tree-null? t)  (tree-make num t t)
+   (if (< num (tree-datum t))
+	  ; left
+	  (tree-make (tree-datum t)
+	             (tree-add num (tree-left t))
+		     (tree-right t))
+	  ; right
+	  (tree-make (tree-datum t)
+	             (tree-left t)
+		     (tree-add num (tree-right t)))))))
+
+
+(define tree-search (num t)
+ (if
+  (not (tree? t)) 'error
+  (if (tree-null? t)  #f
+   (if (= num (tree-datum t)) #t
+    (if (< num (tree-datum t)) (tree-search num (tree-left t))
+     (tree-search num (tree-right t)))))))
+
